@@ -20,7 +20,7 @@
                 "public/init.js",
                 "public/*/*.js",
                 "public/*/{controllers,routes,services}/*.js",
-                "packages/*/public/{controllers,routes,services}/*.js"
+                "packages/*/public/{controllers,routes,directives,services}/*.js"
             ]
         }
     }

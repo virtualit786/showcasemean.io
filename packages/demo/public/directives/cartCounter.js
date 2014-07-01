@@ -1,6 +1,6 @@
 /**
- * Created by farooqhameed on 6/29/14.
- */
+* Created by farooqhameed on 6/29/14.
+*/
 
 
 angular.module('mean.demo').directive("cartCounter", [
