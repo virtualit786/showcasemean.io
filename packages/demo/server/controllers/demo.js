@@ -4,114 +4,156 @@
  * Module dependencies.
  */
 var mongoose = require('mongoose'),
- _ = require('lodash/dist/lodash.underscore'),
- Q = require('q');
+    _ = require('lodash'),
+    async = require('async'),
+    Item = mongoose.model('Item'),
+    Cart = mongoose.model('Cart');
 
-//    _ = require('lodash');
-//    Item = mongoose.model('Item'),
 
+//To keep the implementation simple, I am using the same controller for cart and items operations
 
-//To keep the imlementation simple, I am using the same controller for cart and items operations
+function initItems(res) {
 
-var items = [];
-var cart = {id:1};
-cart.items = [];
+    async.parallel([
+        function (callback) {
+            createItems('I1', 'http://placehold.it/800x600', 1, callback);
+        },
+        function (callback) {
 
-function initItems() {
+            createItems('I2', 'http://placehold.it/800x600', 2, callback);
+        },
+        function (callback) {
 
-    console.log('****************initItems()*******************');
-    console.log('Cart = '+ JSON.stringify(cart));
-    console.log('Items = '+JSON.stringify(items));
-    console.log('****************initItems()*******************');
+            createItems('I3', 'http://placehold.it/800x600', 3, callback);
+        },
+        function (callback) {
 
-    if(items.length > 0) return;
+            createItems('I4', 'http://placehold.it/800x600', 4, callback);
+        },
+        function (callback) {
 
-//    cart.items = [];
+            createItems('I5', 'http://placehold.it/800x600', 5, callback);
+        },
+        function (callback) {
 
-    items.push({id: 1, item: 'I1', image: 'http://placehold.it/800x600', value: 2});
-    items.push({id: 2, item: 'I2', image: 'http://placehold.it/800x600', value: 2});
-    items.push({id: 3, item: 'I3', image: 'http://placehold.it/800x600', value: 2});
-    items.push({id: 4, item: 'I4', image: 'http://placehold.it/800x600', value: 2});
-    items.push({id: 5, item: 'I5', image: 'http://placehold.it/800x600', value: 2});
-    items.push({id: 6, item: 'I6', image: 'http://placehold.it/800x600', value: 2});
+            createItems('I6', 'http://placehold.it/800x600', 6, callback);
+        }
+    ], function (err, results) {
+        console.log('Series completion block  from async.parallel with error = ' + err + '  and results = ' + results + '-');
 
-    console.log('****************Initializing initItems()*******************');
-    console.log(JSON.stringify(cart));
-    console.log(JSON.stringify(items));
-    console.log('****************Initialized initItems()*******************');
+        Item.find().exec(function (err, loadedItems) {
+            if (err) {
+                return res.jsonp(500, {
+                    error: 'Cannot fetch items'
+                });
+            }
+            res.jsonp(loadedItems);
+
+        });
+
+    });
 
 }
 
-exports.all = function(req, res, next) {
-    initItems();
-    res.jsonp(items);
+function createItems(title, imageUrl, value, callback) {
+    var item = new Item();
+    item.title = title;
+    item.value = value;
+    item.imageUrl = imageUrl;
+
+    item.save(function (err) {
+        if (err) {
+            var error = {error: 'Cannot save the item', msg: err};
+        } else {
+            console.log('Item saved ' + JSON.stringify(item));
+        }
+        callback();
+    });
 };
 
-exports.addToCart = function (req, res, next) {
-    console.log('req.params.itemId = ' + req.params.itemId);
-    console.log(JSON.stringify(items));
 
-    var itemId = req.params.itemId;
-    var itemFound;
+exports.all = function (req, res, next) {
 
-    items.forEach(function (item) {
-        if (item.id == itemId){
-            itemFound = item;
-            console.log('ItemFound = '+JSON.stringify(itemFound));
+    Item.find().exec(function (err, loadedItems) {
+        if (err) {
+            return res.jsonp(500, {
+                error: 'Cannot fetch items'
+            });
+        }
+        if (loadedItems && loadedItems.length < 1) {
+            initItems(res);
+        } else {
+            res.jsonp(loadedItems);
         }
     });
 
-    if(!_.isUndefined(itemFound)){
-        cart.items.push(itemFound);
-    }
+};
 
-    res.jsonp(cart);
+exports.addToCart = function (req, res, next) {
 
+    var itemId = req.params.itemId;
+    var cartId = req.params.cartId;
+
+    Item.loadSingle(itemId, function (err, item) {
+        if (err) return next(err);
+        if (!item) return next(new Error('Failed to load item ' + itemId));
+
+        Cart.loadSingle(cartId, function (err, cart) {
+            if (err) return next(err);
+            if (!cart) return next(new Error('Failed to load Cart ' + cartId));
+
+            cart.items.push(item);
+            cart.save(function (err) {
+                if (err) {
+                    return res.jsonp(500, {
+                        error: 'Cannot update the cart'
+                    });
+                }
+                res.jsonp(cart);
+            });
+        });
+    });
 };
 
 exports.getCart = function (req, res, next) {
-    res.jsonp(cart);
 
-};
+    Cart.load(function (err, loadedCart) {
 
-function checkoutCart(cart) {
-            var cartTotalValue = 0;
+        if (err)
+            return next(err);
 
-    var deferred = Q.defer();
+        if (!loadedCart || loadedCart.length < 1) {
 
-//            if (cart.items.length > 0) {
-//
-                _.each(cart.items, function(item) {
-                    cartTotalValue += item.value;
-                });
-
-                if (cartTotalValue  >= 10) {
-                    deferred.resolve(cartTotalValue);
-                } else if (cartTotalValue  < 10) {
-                    deferred.reject(new Error( 'Current Total Cart value '+cartTotalValue+' is less than 10'));
+            var localCart = new Cart();
+            localCart.save(function (err) {
+                if (err) {
+                    var error = {error: 'Cannot create the cart', msg: err};
+                    res.jsonp(new Error('Failed in creating the cart'));
+                } else {
+                    res.jsonp(localCart);
                 }
-//
-//            } else {
-//                deferred.reject(cart);
-//            }
-
-    return deferred.promise;
-}
+            });
+        } else {
+            res.jsonp(loadedCart[0]);
+        }
+    });
+};
 
 exports.checkoutCart = function (req, res, next) {
 
     var cartTotalValue = 0;
+    var cartId = req.params.cartId;
 
-    _.each(cart.items, function(item) {
-        cartTotalValue += item.value;
-    });
 
-    if (cartTotalValue  >= 10) {
+    Cart.loadSingle(cartId, function (err, cart) {
+        if (err) return next(err);
+        if (!cart) return next(new Error('Failed to load Cart ' + cartId));
+
+        _.each(cart.items, function (item) {
+            cartTotalValue += item.value;
+        });
+
         res.jsonp({cartTotalValue: cartTotalValue});
-    } else if (cartTotalValue  < 10) {
-        deferred.reject(new Error( 'Current Total Cart value '+cartTotalValue+' is less than 10'));
-    }
 
-
-
+    });
 };
