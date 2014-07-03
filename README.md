@@ -1,7 +1,25 @@
 # [![MEAN Logo](http://www.mean.io/img/logos/meanlogo.png)](http://mean.io/) MEAN Stack
 
-[![Build Status](https://travis-ci.org/linnovate/mean.png?branch=master)](https://travis-ci.org/linnovate/mean)
-[![Dependencies Status](https://david-dm.org/linnovate/mean.png)](https://david-dm.org/linnovate/mean)
+## Purpose of this Repository
+
+A simple yet effective assignment to showcase MEAN.IO stack skills
+
+
+Use the latest mean.io stack from www.mean.io
+Create a package called demo
+The home page should display a view with 6 pictures (all same size, 2 wide 3 rows) that you receive from a server route call (from a mongo model) each image has a button next to it titled "Add to Cart”
+When you click on Add to cart, add the  image to a cart (setup mongoose model for that)
+On the home page display a directive that display the number of items in the cart. this directive should be AUTOMATICALLY updated with refresh of page when you click add to cart
+On the server side you implement an API that will return all cart items in JSON format
+Add a checkout button in the front end, that calls a server route and in the implementation use a promise (using Q) to return an error if TOTAL cart value <10 and value in case TOTAL cart value > 10
+
+### Techniques to show:
+* Client side view with ajax server call
+* Directive with watch function
+* ng-click updating mongoose model server side
+* Responsive design
+* All pages should be responsive
+
 
 MEAN is a boilerplate that provides a nice starting point for [MongoDB](http://www.mongodb.org/), [Node.js](http://www.nodejs.org/), [Express](http://expressjs.com/), and [AngularJS](http://angularjs.org/) based applications. It is designed to give you a quick and organized way to start developing MEAN based web apps with useful modules like Mongoose and Passport pre-bundled and configured. We mainly try to take care of the connection points between existing popular frameworks and solve common integration problems.  
 
