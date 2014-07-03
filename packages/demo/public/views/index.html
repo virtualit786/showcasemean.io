@@ -1,0 +1,18 @@
+<div class="" data-ng-controller="DemoController" ng-init="init()">
+	<h1>Demo</h1>
+
+    <cart-counter></cart-counter>
+
+    <button type="button" class="btn btn-success" ng-click="checkOutCartClicked()">Checkout</button>
+
+    <div class="row">
+        <div class="col-lg-6 col-sm-6 col-xs-12" ng-repeat="item in items">
+            <a href="#">
+                <img src="{{item.imageUrl}}" class="thumbnail img-responsive">
+            </a>
+            <button type="button" class="btn btn-primary btn-xs" ng-click="addToCartClicked(item._id)">Add to Cart</button>
+            <hr>
+        </div>
+    </div>
+
+</div>
