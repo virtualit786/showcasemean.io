@@ -51,7 +51,7 @@ angular.module('mean.demo').controller('DemoController', ['$scope', 'Global', 'D
             });
 
 
-        }
+        };
 
     }
 ]);

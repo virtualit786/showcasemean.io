@@ -98,7 +98,7 @@ angular.module('mean.demo').factory('Demo', ['$resource', '$q',
             addItemToCart: addItemToCart,
             getCart: getCart,
             checkoutCart: checkoutCart
-        }
+        };
 
     }
 ]);

@@ -12,6 +12,24 @@ var mongoose = require('mongoose'),
 
 //To keep the implementation simple, I am using the same controller for cart and items operations
 
+function createItems(title, imageUrl, value, callback) {
+    var item = new Item();
+    item.title = title;
+    item.value = value;
+    item.imageUrl = imageUrl;
+
+    item.save(function (err) {
+        if (err) {
+            var error = {error: 'Cannot save the item', msg: err};
+            console.log('Error = '  + JSON.stringify(error));
+        } else {
+            console.log('Item saved ' + JSON.stringify(item));
+        }
+        callback();
+    });
+}
+
+
 function initItems(res) {
 
     async.parallel([
@@ -54,22 +72,6 @@ function initItems(res) {
     });
 
 }
-
-function createItems(title, imageUrl, value, callback) {
-    var item = new Item();
-    item.title = title;
-    item.value = value;
-    item.imageUrl = imageUrl;
-
-    item.save(function (err) {
-        if (err) {
-            var error = {error: 'Cannot save the item', msg: err};
-        } else {
-            console.log('Item saved ' + JSON.stringify(item));
-        }
-        callback();
-    });
-};
 
 
 exports.all = function (req, res, next) {
@@ -127,7 +129,6 @@ exports.getCart = function (req, res, next) {
             var localCart = new Cart();
             localCart.save(function (err) {
                 if (err) {
-                    var error = {error: 'Cannot create the cart', msg: err};
                     res.jsonp(new Error('Failed in creating the cart'));
                 } else {
                     res.jsonp(localCart);

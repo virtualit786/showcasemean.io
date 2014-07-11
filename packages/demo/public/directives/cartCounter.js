@@ -2,16 +2,16 @@
 * Created by farooqhameed on 6/29/14.
 */
 
+'use strict';
 
-angular.module('mean.demo').directive("cartCounter", [
+angular.module('mean.demo').directive('cartCounter', [
     function () {
         return {
             restrict: 'E',
             cartItemsCount: 0,
             template: '<div> ' +
                 '<h2> {{cartItemsCount}} Items in Cart </h2>' +
-                '</div>'
-            ,
+                '</div>',
             link: function (scope, element, attrs) {
                 scope.$watch('cart.items', function (items) {
                     if(items){
@@ -19,6 +19,6 @@ angular.module('mean.demo').directive("cartCounter", [
                     }
                 });
             }
-        }
+        };
     }
 ]);

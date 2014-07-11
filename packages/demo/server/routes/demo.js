@@ -1,9 +1,7 @@
 'use strict';
 
-var demoController = require('../controllers/demo'),
-    _ = require('lodash');
+var demoController = require('../controllers/demo');
 
-// The Package is past automatically as first parameter
 module.exports = function (Demo, app, auth, database) {
 
     app.get('/demo/example/anyone', function (req, res, next) {
